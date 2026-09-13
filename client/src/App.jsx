@@ -97,7 +97,7 @@ export default function App() {
         <button className="mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Open navigation">☰</button>
         {page === 'welcome' && <WelcomePage user={user} onDiscuss={startChat} onUpload={() => navigate('upload')} />}
         {page === 'chat' && <ChatPage chat={activeChat} onChatStarted={(id) => setActiveChatId(id)} onHistoryChanged={refreshLibrary} />}
-        {page === 'upload' && <UploadPage onComplete={(note) => { setActiveNote(note); refreshLibrary(); navigate('guide'); }} />}
+        {page === 'upload' && <UploadPage user={user} onComplete={(note) => { setActiveNote(note); refreshLibrary(); navigate('guide'); }} />}
         {page === 'guide' && <StudyGuidePage note={activeNote} onBack={() => navigate('upload')} onReindex={reindexActiveNote} />}
       </main>
     </div>

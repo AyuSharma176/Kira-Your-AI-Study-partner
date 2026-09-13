@@ -53,6 +53,33 @@ test('re-indexing returns the owned note after rebuilding its chunks', async () 
   assert.equal(res.body.note.ragStatus, 'ready');
 });
 
+test('analyzes a private Blob upload and cleans it up after extraction', async () => {
+  let cleaned = false;
+  const { uploadAndAnalyze } = createUploadController({
+    NoteModel: { findOne: async () => null, create: async (note) => ({ _id: 'note-1', ...note }) },
+    downloadPdf: async () => ({
+      path: 'temporary.pdf',
+      cleanup: async () => { cleaned = true; },
+    }),
+    extractPdf: async () => 'Readable PDF content with more than thirty characters.',
+    analyze: async () => ({ topics: [] }),
+    index: async () => {},
+  });
+  const res = createResponse();
+
+  await uploadAndAnalyze({
+    body: {
+      blobUrl: 'https://store.private.blob.vercel-storage.com/uploads/user-a/notes.pdf',
+      originalFilename: 'notes.pdf',
+    },
+    user: { _id: 'user-a' },
+  }, res, assert.fail);
+
+  assert.equal(res.statusCode, 201);
+  assert.equal(res.body.note.originalFilename, 'notes.pdf');
+  assert.equal(cleaned, true);
+});
+
 test('chat streams a grounded reply and persists matching sources', async () => {
   const savedSnapshots = [];
   const chat = {

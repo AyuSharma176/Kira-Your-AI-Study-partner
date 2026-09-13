@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
 import mongoose from 'mongoose';
 import Note from '../models/Note.js';
+import { deletePdf, downloadPdf, isOwnedPrivateBlobUrl } from '../services/blobService.js';
 import { extractPdfText } from '../services/pdfService.js';
 import { analyzeNotes } from '../services/aiService.js';
 import { indexNote } from '../services/ragService.js';
@@ -10,20 +10,28 @@ export function createUploadController({
   extractPdf = extractPdfText,
   analyze = analyzeNotes,
   index = indexNote,
-  unlink = fs.unlink,
+  downloadPdf: download = downloadPdf,
+  deletePdf: removeBlob = deletePdf,
 } = {}) {
   async function uploadAndAnalyze(req, res, next) {
+    let uploadedPdf;
     try {
-      if (!req.file) return res.status(400).json({ message: 'Choose a PDF file to upload.' });
+      const { blobUrl, originalFilename } = req.body || {};
+      if (!blobUrl || !originalFilename?.toLowerCase().endsWith('.pdf')) {
+        return res.status(400).json({ message: 'Choose a PDF file to upload.' });
+      }
+      if (!isOwnedPrivateBlobUrl(blobUrl, req.user._id)) {
+        return res.status(400).json({ message: 'The uploaded PDF could not be verified.' });
+      }
 
-      const duplicate = await NoteModel.findOne({ userId: req.user._id, originalFilename: req.file.originalname });
+      const duplicate = await NoteModel.findOne({ userId: req.user._id, originalFilename });
       if (duplicate) {
-        await unlink(req.file.path).catch(() => {});
+        await removeBlob(blobUrl).catch(() => {});
         return res.status(409).json({ message: 'This PDF has already been analyzed.', noteId: duplicate._id });
       }
 
-      const extractedText = await extractPdf(req.file.path);
-      await unlink(req.file.path).catch(() => {});
+      uploadedPdf = await download(blobUrl);
+      const extractedText = await extractPdf(uploadedPdf.path);
       if (extractedText.length < 30) {
         return res.status(422).json({ message: 'No readable text was found. This PDF may need OCR before it can be analyzed.' });
       }
@@ -31,7 +39,7 @@ export function createUploadController({
       const aiResult = await analyze(extractedText);
       const note = await NoteModel.create({
         userId: req.user._id,
-        originalFilename: req.file.originalname,
+        originalFilename,
         extractedText,
         aiResult,
       });
@@ -44,8 +52,9 @@ export function createUploadController({
 
       return res.status(201).json({ note });
     } catch (error) {
-      if (req.file?.path) await unlink(req.file.path).catch(() => {});
       return next(error);
+    } finally {
+      await uploadedPdf?.cleanup?.();
     }
   }
 

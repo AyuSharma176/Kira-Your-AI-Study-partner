@@ -25,7 +25,7 @@ StudyBot is a full-stack AI study assistant for students. Upload PDF notes to ge
 | Authentication | JSON Web Tokens, httpOnly cookies, bcryptjs |
 | AI | Google Gemini via `@google/genai` |
 | Retrieval | Gemini Embedding 2, MongoDB note chunks, cosine similarity |
-| PDF handling | Multer and pdf-parse |
+| PDF handling | Vercel Blob and pdf-parse |
 | Testing | Node test runner, Vitest, Testing Library |
 
 ## Project structure
@@ -119,6 +119,36 @@ RAG_MIN_SCORE=0.38
 ```
 
 `GEMINI_API_KEY` is read only by the Express server. It is used for both tutor responses and note embeddings, and it is never sent to the browser.
+
+`BLOB_READ_WRITE_TOKEN` is required in Vercel. It authorizes the server to issue authenticated direct-upload tokens and retrieve private PDFs while they are analyzed. It is never sent to the browser.
+
+## Deploy to Vercel
+
+This repository deploys as one Vercel project: Vite builds the React client and `api/index.js` runs the Express API as a Node.js Function. PDFs are uploaded directly from the browser to a **private** Vercel Blob store, so the API does not receive the file body and is not limited by Vercel Function request size.
+
+1. Push the `codex/deployable` branch to GitHub and import the repository into Vercel. Leave the project root as the repository root; `vercel.json` supplies the build command and `client/dist` output directory.
+2. In **Storage**, create a new **Vercel Blob** store with access set to **Private** and connect it to the project. Vercel adds `BLOB_READ_WRITE_TOKEN` to the selected environments.
+3. In **Settings → Environment Variables**, set these for Preview and Production:
+
+   ```dotenv
+   NODE_ENV=production
+   CLIENT_URL=https://your-project.vercel.app
+   MONGO_URI=your-mongodb-atlas-connection-string
+   JWT_SECRET=a-long-random-secret
+   JWT_EXPIRES_IN=7d
+   GEMINI_API_KEY=your-google-ai-studio-key
+   GEMINI_MODEL=gemini-3.6-flash
+   GEMINI_EMBEDDING_MODEL=gemini-embedding-2
+   RAG_EMBEDDING_DIMENSIONS=768
+   RAG_TOP_K=4
+   RAG_MIN_SCORE=0.38
+   ```
+
+   `BLOB_READ_WRITE_TOKEN` is supplied automatically when the private Blob store is connected. Do not add it to client-side `VITE_*` variables.
+4. In MongoDB Atlas, create a database user for this application and allow Vercel network access. For a quick development deployment, Atlas's `0.0.0.0/0` access rule works; restrict it further when you have a suitable network boundary.
+5. Deploy from the Vercel dashboard or run `npx vercel --prod` after logging into the Vercel CLI. Set `CLIENT_URL` again to the final custom domain if you add one, then redeploy.
+
+The deployment uses same-origin `/api` requests and secure httpOnly cookies, so no separate frontend API URL is necessary. Vercel Function duration is set to 300 seconds to accommodate PDF extraction and Gemini analysis.
 
 ## How RAG works
 

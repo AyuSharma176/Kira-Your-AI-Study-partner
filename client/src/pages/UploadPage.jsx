@@ -1,13 +1,15 @@
 import { useRef, useState } from 'react';
+import { upload } from '@vercel/blob/client';
 import { api } from '../api.js';
 
 const MAX_SIZE = 15 * 1024 * 1024;
 
-export default function UploadPage({ onComplete }) {
+export default function UploadPage({ user, onComplete }) {
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [working, setWorking] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState('');
 
   function chooseFile(candidate) {
@@ -22,11 +24,17 @@ export default function UploadPage({ onComplete }) {
     event.preventDefault();
     if (!file) return setError('Choose a PDF before starting analysis.');
     setWorking(true);
+    setUploadProgress(0);
     setError('');
     try {
-      const formData = new FormData();
-      formData.append('pdf', file);
-      const { note } = await api.upload('/api/upload/pdf', formData);
+      const blob = await upload(`uploads/${user.id}/${file.name}`, file, {
+        access: 'private',
+        contentType: 'application/pdf',
+        handleUploadUrl: '/api/upload/blob',
+        multipart: true,
+        onUploadProgress: ({ percentage }) => setUploadProgress(percentage),
+      });
+      const { note } = await api.post('/api/upload/pdf', { blobUrl: blob.url, originalFilename: file.name });
       onComplete(note);
     } catch (requestError) {
       setError(requestError.message);
@@ -44,7 +52,7 @@ export default function UploadPage({ onComplete }) {
       </button>
       <div className="upload-info"><span>◷ Analysis usually takes 30–60 seconds</span><span>◈ Max file size: 15 MB</span><span>⌁ Text-readable PDFs only</span></div>
       {error && <p className="form-error upload-error" role="alert">{error}</p>}
-      <button className="primary-button analyze-button" disabled={!file || working}>{working ? <><span className="button-spinner" /> Building your study guide…</> : <>Analyze my notes <span>→</span></>}</button>
+      <button className="primary-button analyze-button" disabled={!file || working}>{working ? <><span className="button-spinner" /> {uploadProgress < 100 ? `Uploading PDF… ${Math.round(uploadProgress)}%` : 'Building your study guide…'}</> : <>Analyze my notes <span>→</span></>}</button>
     </form>
     <div className="analysis-preview"><p className="sidebar-label">YOUR STUDY GUIDE WILL INCLUDE</p><div><span><b>01</b> Topic summaries</span><span><b>02</b> Real-world examples</span><span><b>03</b> Practice & answers</span></div></div>
   </section>;
