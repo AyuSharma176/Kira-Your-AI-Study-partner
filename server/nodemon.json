@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "server.js",
+    "config",
+    "controllers",
+    "middleware",
+    "models",
+    "routes",
+    "services",
+    ".env"
+  ],
+  "ext": "js,json,env",
+  "ignore": ["uploads/*"],
+  "exec": "node server.js"
+}
