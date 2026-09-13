@@ -1,6 +1,6 @@
 # KIRA
 
-StudyBot is a full-stack AI study assistant for students. Upload PDF notes to generate structured study material, then discuss a topic with a streaming AI tutor that can automatically use relevant excerpts from your own notes.
+KIRA is a full-stack AI study assistant for students. Upload PDF notes to generate structured study material, then discuss a topic with a streaming AI tutor that can automatically use relevant excerpts from your own notes.
 
 ## Features
 
