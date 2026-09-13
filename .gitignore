@@ -33,3 +33,6 @@ Thumbs.db
 
 # Local scratch files
 work/
+
+# Isolated agent worktrees
+.worktrees/
