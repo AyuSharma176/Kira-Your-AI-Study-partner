@@ -5,6 +5,9 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 300
+    },
+    "api/[...path].js": {
+      "maxDuration": 300
     }
   }
 }
