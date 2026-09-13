@@ -27,7 +27,7 @@ export default function AuthPage({ onAuthenticated }) {
 
   return <div className="auth-layout">
     <section className="auth-intro">
-      <div className="brand-row"><div className="brand-mark">✦</div><span>StudyBot</span></div>
+      <div className="brand-row"><div className="brand-mark">✦</div><span className="kira-wordmark">Kira</span></div>
       <div className="intro-copy"><p className="eyebrow">YOUR LEARNING COMPANION</p><h1>Turn every question into understanding.</h1><p>Chat with a patient AI tutor or turn your class notes into a personal study guide in minutes.</p></div>
       <div className="auth-orbit orbit-one" /><div className="auth-orbit orbit-two" />
       <div className="feature-pills"><span>✦ Clear explanations</span><span>▤ Smart notes</span><span>✓ Practice problems</span></div>

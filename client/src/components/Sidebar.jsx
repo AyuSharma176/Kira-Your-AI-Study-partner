@@ -7,7 +7,7 @@ export default function Sidebar({ user, chats, notes, currentPage, activeChatId,
     <>
       {open && <button className="sidebar-scrim" onClick={onClose} aria-label="Close navigation" />}
       <aside className={`sidebar ${open ? 'is-open' : ''}`}>
-        <div className="brand-row"><div className="brand-mark">✦</div><span>StudyBot</span><button className="sidebar-close" onClick={onClose}>×</button></div>
+        <div className="brand-row"><div className="brand-mark">✦</div><span className="kira-wordmark">Kira</span><button className="sidebar-close" onClick={onClose}>×</button></div>
         <button className="new-chat" onClick={onNewChat}><span>＋</span> New discussion</button>
         <nav className="mode-nav" aria-label="Main navigation">
           <button className={currentPage === 'welcome' ? 'active' : ''} onClick={() => onNavigate('welcome')}>⌂ <span>Home</span></button>

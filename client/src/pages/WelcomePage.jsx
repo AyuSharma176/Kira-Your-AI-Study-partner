@@ -1,7 +1,7 @@
 export default function WelcomePage({ user, onDiscuss, onUpload }) {
   return <section className="welcome-page page-width">
     <div className="welcome-spark">✦</div>
-    <p className="eyebrow">STUDYBOT IS READY</p>
+    <p className="eyebrow">KIRA IS READY</p>
     <h1>Hi {user.name.split(' ')[0]}! <span>How can I help you today?</span></h1>
     <p className="welcome-description">I can be your patient study partner — ask anything, or transform your notes into a clear study plan.</p>
     <div className="welcome-options">

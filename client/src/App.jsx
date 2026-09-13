@@ -73,7 +73,7 @@ export default function App() {
     setPage('welcome');
   }
 
-  if (loading) return <div className="app-loader"><span className="loader-dot" /> Loading StudyBot</div>;
+  if (loading) return <div className="app-loader"><span className="loader-dot" /> Loading Kira</div>;
   if (!user) return <AuthPage onAuthenticated={(loggedInUser) => { setUser(loggedInUser); refreshLibrary(); }} />;
 
   const activeChat = chats.find((chat) => chat._id === activeChatId) || null;

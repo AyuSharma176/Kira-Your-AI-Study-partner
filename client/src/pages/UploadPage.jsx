@@ -44,7 +44,7 @@ export default function UploadPage({ user, onComplete }) {
   }
 
   return <section className="upload-page page-width">
-    <p className="eyebrow">NOTE ANALYZER</p><h1>Make your notes <span>work harder.</span></h1><p className="page-lede">Upload a text-readable PDF and StudyBot will organize the ideas, add relatable examples, and create practice problems just for you.</p>
+    <p className="eyebrow">NOTE ANALYZER</p><h1>Make your notes <span>work harder.</span></h1><p className="page-lede">Upload a text-readable PDF and Kira will organize the ideas, add relatable examples, and create practice problems just for you.</p>
     <form onSubmit={submit}>
       <button type="button" className={`dropzone ${dragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`} onClick={() => inputRef.current?.click()} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={(event) => { event.preventDefault(); setDragging(false); chooseFile(event.dataTransfer.files[0]); }}>
         <input ref={inputRef} type="file" accept="application/pdf,.pdf" onChange={(event) => chooseFile(event.target.files[0])} hidden />
