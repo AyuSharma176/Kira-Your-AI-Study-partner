@@ -1,7 +1,11 @@
-export function normalizeApiPath(requestUrl = '/') {
-  const [pathname, query = ''] = requestUrl.split('?', 2);
-  const normalizedPathname = pathname === '/api' || pathname.startsWith('/api/')
-    ? pathname
-    : `/api${pathname.startsWith('/') ? pathname : `/${pathname}`}`;
-  return query ? `${normalizedPathname}?${query}` : normalizedPathname;
+export function buildExpressRequestUrl(requestUrl = '/') {
+  const url = new URL(requestUrl, 'http://localhost');
+  const path = url.searchParams.get('path') || '';
+
+  url.searchParams.delete('path');
+  const query = url.searchParams.toString();
+  const normalizedPath = path.replace(/^\/+/, '');
+  const apiPath = normalizedPath ? `/api/${normalizedPath}` : '/api';
+
+  return query ? `${apiPath}?${query}` : apiPath;
 }

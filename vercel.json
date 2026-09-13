@@ -2,11 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm ci --prefix server && npm ci --include=dev --prefix client && npm run build --prefix client",
   "outputDirectory": "client/dist",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/handler?path=:path*"
+    }
+  ],
   "functions": {
-    "api/index.js": {
-      "maxDuration": 300
-    },
-    "api/[...path].js": {
+    "api/handler.js": {
       "maxDuration": 300
     }
   }
